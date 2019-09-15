@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <script src=".\Ext JSv6.0.1Commercial\build\ext-all.js"></script>
+    <link href=".\Ext JSv6.0.1Commercial\build\classic\theme-classic\resources\theme-classic-all.css" rel="stylesheet">
+    <style>
+        .button{
+            background-color: #00BFFF;
+            border: 1px;
+            color: white;
+            margin-left: 30px;
+        }
+        .delete_button{
+            background-color: red;
+            border: 1px;
+            color: white;
+            margin-left: 30px;
+        }
+        .down_button{
+            background-color: #0BA2FF;
+            border: 1px;
+            color: white;
+            margin-left: 30px;
+        }
+        .indexPanel{
+            font-size: 30px;
+            text-align: center;
+            margin-top: 21%;
+            color: 	#B4B4B4;
+        }
+    </style>
+</head>
+<body>
+</body>
+<script src="component/component.js"></script>
+<script type="text/javascript">
+    Ext.onReady(function () {
+        Ext.create("Ext.container.Viewport",{
+            layout : "border",
+            items :[
+                {
+                    region : "west",
+                    xtype : "treePanel",
+                    width :"15%"
+                },
+                {
+                  region : "east",
+                  xtype : "panel",
+                  width : "85%",
+                  title : "首页",
+                  id : "index",
+                  html : "<div class='indexPanel' id='date'></div>"
+                },
+                {
+                  region : "east",
+                  xtype : "panel",
+                  id : "note_panel",
+                  hidden : true,
+                  width : "85%",
+                  items : [
+                      {
+                          xtype:"item_note",
+                      },
+                      {
+                          xtype : "item_grid"
+                      }
+                  ]
+                },
+                {
+                    region : "east",
+                    xtype : "panel",
+                    id : "todo_item_panel",
+                    hidden : true,
+                    width : "85%",
+                    layout :"border",
+                    items:[
+                        {
+                            region : "north",
+                            xtype : "todo_item",
+                            title : "工具栏"
+                        },
+                        {
+                            region : "west",
+                            xtype : "todo_item_grid",
+                            width : "50%"
+                         },
+                         {
+                             region : "east",
+                             xtype : "todo_item_grid_ed",
+                             width : "50%"
+                          }
+                    ]
+                }
+            ]
+
+        })
+        var dateFormat = Ext.util.Format.date(new Date(),"Y-m-d H:i:s");
+        document.getElementById('date').innerHTML="欢迎，赵磊<br/>现在时间："+dateFormat
+        setInterval(createDateTime, 1000);
+        function createDateTime(){
+            document.getElementById('date').innerHTML="欢迎，赵磊<br/>现在时间："+Ext.util.Format.date(new Date(),"Y-m-d H:i:s");
+        }
+    })
+</script>
+</html>
