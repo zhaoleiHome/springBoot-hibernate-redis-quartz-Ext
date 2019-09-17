@@ -42,6 +42,7 @@ public class Index {
         items.setUuid(uuid);
         items.setDelete_state(0);
         addItem.save(items);
+        redisCache.deleteCache(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
         return new JsonResult<Void>(SUCCESS);
     }
 
@@ -74,7 +75,12 @@ public class Index {
     //自行获取今日笔记的接口
     @RequestMapping(value = "get-item",method = RequestMethod.GET)
     public JsonResult<List> getAllItem(String date){
-        List list = addItem.findByAppDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        Long time1 = System.currentTimeMillis();
+        List list = redisCache.getAllItemByDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+//        List list = addItem.findByAppDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        Long time2 = System.currentTimeMillis();
+        long time = (int)(time2-time1);
+        System.err.println("执行时间为"+time+"毫秒");
         return new JsonResult(SUCCESS,list);
     }
     @RequestMapping(value = "get-app-item",method = RequestMethod.GET)
@@ -90,6 +96,7 @@ public class Index {
     @RequestMapping(value = "delete_item",method = RequestMethod.POST)
     public JsonResult<Void> deleteItem(String uuid){
         addItem.deleteItem(uuid);
+        redisCache.deleteCache(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
         return new JsonResult<>(SUCCESS);
     }
 

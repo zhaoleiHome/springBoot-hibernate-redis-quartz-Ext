@@ -4,11 +4,12 @@ import com.example.demo.DataBase.im.AddNote;
 import net.bytebuddy.implementation.bind.annotation.Default;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "items")
-public class Items {
+public class Items implements Serializable {
     public Items(){}
     @Id
     @Column(name = "id",unique = true, nullable = false)

@@ -461,15 +461,16 @@
                     Ext.getCmp("note_panel").setHidden(false);
                     break;
                 case "事项":
-                    Ext.getCmp("index").setHidden(true)
-                    Ext.getCmp("note_panel").setHidden(true);
-                    Ext.getCmp("todo_item_panel").setHidden(false);
+                    Ext.Msg.alert('提醒', '暂未开放！');
+                    // Ext.getCmp("index").setHidden(true)
+                    // Ext.getCmp("note_panel").setHidden(true);
+                    // Ext.getCmp("todo_item_panel").setHidden(false);
                     break;
                 case "已删除记录":
-                    console.log("已删除记录");
+                    Ext.Msg.alert('提醒', '暂未开放！');
                     break;
                 case "已删除事项":
-                    console.log("已删除事项");
+                    Ext.Msg.alert('提醒', '暂未开放！');
                     break;
             }
         }
