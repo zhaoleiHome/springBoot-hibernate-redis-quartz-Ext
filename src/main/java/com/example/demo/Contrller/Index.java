@@ -2,12 +2,15 @@ package com.example.demo.Contrller;
 import com.example.demo.DataBase.Items;
 import com.example.demo.DataBase.Notes;
 import com.example.demo.DataBase.ToDoItem;
+import com.example.demo.DataBase.ToDoNote;
 import com.example.demo.DataBase.im.AddItem;
 import com.example.demo.DataBase.im.AddNote;
 import com.example.demo.DataBase.im.AddToDoItem;
+import com.example.demo.DataBase.im.AddToDoNote;
 import com.example.demo.JsonResult;
 import com.example.demo.RedisCache.imp.RedisService.RedisCache;
 import io.netty.util.concurrent.SucceededFuture;
+import javafx.scene.media.VideoTrack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,7 +40,8 @@ public class Index {
     private AddToDoItem addToDoItem;
     @Autowired
     private RedisCache redisCache;
-
+    @Autowired
+    private AddToDoNote addToDoNote;
     @RequestMapping(value = "add-item",method = RequestMethod.POST)
     public JsonResult<Void> addItem(String item){
         Items items  = new Items();
@@ -213,10 +217,32 @@ public class Index {
     public JsonResult<List<ToDoItem>> getToDoItemByDate(String date,Integer state){
         return new JsonResult<List<ToDoItem>>(SUCCESS,addToDoItem.findAllByDate(date,state));
     }
-
-    public JsonResult<List<ToDoItem>> SearchToDoItem(String text,Integer state){
-        return new JsonResult<List<ToDoItem>>(SUCCESS,addToDoItem.findAllByDate(text,state));
+    @RequestMapping(value = "add-todo-note",method = RequestMethod.POST)
+    public JsonResult<Void> addToDoNote(String uuid,String content){
+        if(addToDoNote.findToDoNoteCount(uuid)==1){
+            addToDoNote.updateTodDoItem(content,uuid);
+        }else{
+            ToDoNote toDoNote = new ToDoNote();
+            toDoNote.setContent(content);
+            toDoNote.setCreate_at(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            toDoNote.setParent_id(uuid);
+            toDoNote.setUuid(UUID.randomUUID().toString());
+            addToDoNote.save(toDoNote);
+        };
+        return new JsonResult<Void>(SUCCESS);
     }
+    @RequestMapping(value = "get-todo-note",method = RequestMethod.GET)
+    public JsonResult<Void> getToDoNote(String uuid){
+        ToDoNote toDoNote = addToDoNote.findByParent_id(uuid);
+        if(toDoNote==null){
+            toDoNote = new ToDoNote();
+            toDoNote.setContent("请输入内容......");
+        }
+        return new JsonResult<Void>(SUCCESS,toDoNote.getContent());
+    }
+//    public JsonResult<List<ToDoItem>> SearchToDoItem(String text,Integer state){
+//        return new JsonResult<List<ToDoItem>>(SUCCESS,addToDoItem.findAllByDate(text,state));
+//    }
 }
 
 

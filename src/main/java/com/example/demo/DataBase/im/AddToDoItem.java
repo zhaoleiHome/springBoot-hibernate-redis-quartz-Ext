@@ -25,6 +25,6 @@ public interface AddToDoItem extends JpaRepository<ToDoItem,Long> {
     @Transactional
     int deleteToDoItemByUUID(String uuid);
 
-    // TODO: 2019/9/18 搜索框使用
-    List<ToDoItem> searchToDoItem(String text,String state);
+//    // TODO: 2019/9/18 搜索框使用
+//    List<ToDoItem> searchToDoItem(String text,String state);
 }

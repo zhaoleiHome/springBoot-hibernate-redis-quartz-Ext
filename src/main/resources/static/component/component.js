@@ -268,7 +268,7 @@
                     renderer: function (value, metaData, record) {
                         var uuid = record.data.uuid
                         var index = record.data.id
-                        var button = "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='addRecord(" + index + ")'>记录</button>" +
+                        var button = "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='addRecordToDo(" + index + ")'>记录</button>" +
                             "<button id = " + index + " data='" + uuid + "' type='button' class = 'delete_button' onclick='deleteToDoItem(" + index + ")'>删除</button>"+
                             "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='moveItem("+index+")'>右移</button>"
                         return Ext.String.format(button);
@@ -303,7 +303,7 @@
                     renderer: function (value, metaData, record) {
                         var uuid = record.data.uuid
                         var index = record.data.id
-                        var button = "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='addRecord(" + index + ")'>记录</button>" +
+                        var button = "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='addRecordToDo(" + index + ")'>记录</button>" +
                             "<button id = " + index + " data='" + uuid + "' type='button' class = 'delete_button' onclick='deleteToDoItem(" + index + ")'>删除</button>"+
                             "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='moveItem("+index+")'>左移</button>"
                         return Ext.String.format(button);
@@ -610,4 +610,65 @@
                 });
             }
         });
+    }
+
+    function addRecordToDo(value){
+        var uuid = Ext.getElementById(value).getAttribute("data");
+        var textData = "请输入内容......"
+        Ext.Ajax.request({
+            url: '/get-todo-note?uuid='+ uuid,
+            method: "GET",
+            success: function (response) {
+                console.log(response)
+                var json = JSON.parse(response.responseText)
+                if (json.message !== "" || json.message !== undefined) {
+                    textData = json.message
+                    Ext.create('Ext.window.Window', {
+                        title: '添加笔记',
+                        height: 700,
+                        width: 1000,
+                        resizable: false,
+                        layout: 'absolute',
+                        bodyStyle: 'background:#fff',
+                        items: [
+                            {
+                                xtype: "htmleditor",
+                                id: "todo_value",
+                                defaultValue: textData,
+                                enableAlignments: true,
+                                enableColors: true,
+                                enableFont: true,
+                                enableFontSize: true,
+                                enableLinks: true,
+                                enableFormat: true,
+                                enableLists: true,
+                                enableSourceEdit: true,
+                                height: 626,
+                            },
+                            {
+                                xtype: "button",
+                                text: "保 存",
+                                x: 893,
+                                y: 630,
+                                width: "85px",
+                                height: "35px",
+                                handler: function () {
+                                    Ext.Ajax.request({
+                                        url: '/add-todo-note',
+                                        params: {
+                                            uuid: uuid,
+                                            content: Ext.getCmp("todo_value").getValue()
+                                        },
+                                        success: function (response) {
+                                            Ext.Msg.alert('成功', '添加笔记成功！');
+                                        }
+                                    });
+
+                                }
+                            }
+                        ]
+                    }).show();
+                }
+            }
+        })
     }
