@@ -12,14 +12,34 @@ public class ToDoItem implements Serializable {
     @Column(name = "id",unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "content")
-    private String content;
+    @Column(name = "title")
+    private String title;
     @Column(name = "date")
     private String date;
     @Column(name = "create_at")
     private String create_at;
     @Column(name = "uuid")
     private String uuid;
+    @Column(name = "state")
+    private Integer state;
+    @Column(name = "delete_state")
+    private Integer delete_state;
+
+    public Integer getDelete_state() {
+        return delete_state;
+    }
+
+    public void setDelete_state(Integer delete_state) {
+        this.delete_state = delete_state;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
 
     public String getUuid() {
         return uuid;
@@ -37,12 +57,12 @@ public class ToDoItem implements Serializable {
         this.id = id;
     }
 
-    public String getContent() {
-        return content;
+    public String getTitle() {
+        return title;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDate() {

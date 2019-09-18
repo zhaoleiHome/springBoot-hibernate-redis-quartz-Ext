@@ -24,13 +24,6 @@ public class RedisServiceImp implements RedisCache {
     private AddItem addItem;
 
     @Override
-    @Cacheable(value = "get-todo-item",key="#id")
-    public ToDoItem getToDoItemById(Integer id) {
-        System.out.println("查询事项");
-        return addToDoItem.findById(id);
-    }
-
-    @Override
     @Cacheable(value = "get-item",key = "#date")
     public List<Items> getAllItemByDate(String date) {
         System.err.println("获取缓存");

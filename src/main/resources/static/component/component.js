@@ -1,4 +1,6 @@
     var url = "/get-item";
+    var todoUrl = "get-todo-item-date"
+    var todoUrlED = "get-todo-item-date-ED"
     var store= Ext.create('Ext.data.Store',{
             fields : ["id","uuid","itemTitle","create_at"],
             proxy:{
@@ -13,10 +15,10 @@
         });
         store.load();
     var todo_item_store_ed= Ext.create('Ext.data.Store',{
-        fields : ["id","uuid","itemTitle","create_at"],
+        fields : ["id","uuid","title","date"],
         proxy:{
             type : "ajax",
-            url:url,
+            url:todoUrlED,
             reader:{
                 type:"json",
                 root:"data"
@@ -26,10 +28,10 @@
     });
     todo_item_store_ed.load()
     var todo_item_store= Ext.create('Ext.data.Store',{
-        fields : ["id","uuid","itemTitle","create_at"],
+        fields : ["id","uuid","title","date"],
         proxy:{
             type : "ajax",
-            url:url,
+            url:todoUrl,
             reader:{
                 type:"json",
                 root:"data"
@@ -87,6 +89,85 @@
                     },
                     items : [
                         {
+                            xtype : "textfield",
+                            id : "search_item",
+                            allowBlank: false,
+                            style: {
+                                width: '15%',
+                                marginLeft: '5px',
+                                float:"left",
+                            }
+                        },
+                        {
+                            xtype : "button",
+                            text : "搜索",
+                            width : 100,
+                            style :{
+                                marginLeft: '5px',
+                                float:"left",
+                            },
+                            handler : function () {
+                                var value = Ext.getCmp("search_item").getValue();
+                                if(value===null||value===""){
+                                    Ext.Msg.alert('提示', '内容不可为空');
+                                    return
+                                }
+                                url="/search_item?text="+value
+                                store.getProxy().url = url;
+                                store.load({
+                                    callback : function (r,options,success) {
+                                        if(r.length===0){
+                                            Ext.Msg.alert("提示","没有根据模糊查询查找到对应记录")
+                                        }
+                                    }
+                                })
+                            }
+                        },
+                        {
+                            xtype: 'datefield',
+                            id: "selectionDate",
+                            name: 'from_date',
+                            maxValue: new Date(),
+                            style :{
+                                marginLeft: '10px',
+                                float:"left",
+                            },
+                        },
+                        {
+                            xtype : "button",
+                            text : "确定时间查询",
+                            style :{
+                                marginLeft: '5px',
+                                float:"left",
+                            },
+                            handler:function () {
+                                var value = Ext.util.Format.date(Ext.getCmp("selectionDate").getValue(),"Y-m-d")
+                                if(value===null||value===""){
+                                    Ext.Msg.alert('提示', '内容不可为空');
+                                    return
+                                }
+                                url='/get-app-item?date='+value;
+                                store.getProxy().url = url;
+                                store.load()
+                                Ext.getCmp("selectionDate").reset()
+                            }
+                        },
+                        {
+                            xtype : "button",
+                            id : "allItem",
+                            text : "查看全部",
+                            width : 100,
+                            style :{
+                                marginLeft: '10px',
+                                float:"left",
+                            },
+                            handler : function () {
+                                url='/get-all-item'
+                                store.getProxy().url = url;
+                                store.load()
+                            }
+                        },
+                        {
                             xtype : "button",
                             text : "添加记录",
                             style :{
@@ -125,85 +206,6 @@
                                 float:"right"
                             }
                         },
-                        {
-                            xtype : "button",
-                            text : "确定时间",
-                            style :{
-                                marginRight: '25px',
-                                float:"right",
-                            },
-                            handler:function () {
-                                var value = Ext.util.Format.date(Ext.getCmp("selectionDate").getValue(),"Y-m-d")
-                                if(value===null||value===""){
-                                    Ext.Msg.alert('提示', '内容不可为空');
-                                    return
-                                }
-                                url='/get-app-item?date='+value;
-                                store.getProxy().url = url;
-                                store.load()
-                                Ext.getCmp("selectionDate").reset()
-                            }
-                        },
-                        {
-                            xtype: 'datefield',
-                            id: "selectionDate",
-                            name: 'from_date',
-                            maxValue: new Date(),
-                            style :{
-                                marginRight: '10px',
-                                float:"right",
-                            },
-                        },
-                        {
-                            xtype : "button",
-                            id : "allItem",
-                            text : "查看全部",
-                            width : 100,
-                            style :{
-                                marginRight: '10px',
-                                float:"right",
-                            },
-                            handler : function () {
-                                url='/get-all-item'
-                                store.getProxy().url = url;
-                                store.load()
-                            }
-                        },
-                        {
-                            xtype : "textfield",
-                            id : "search_item",
-                            allowBlank: false,
-                            style: {
-                                width: '15%',
-                                marginLeft: '5px',
-                                float:"left",
-                            }
-                        },
-                        {
-                            xtype : "button",
-                            text : "搜索",
-                            width : 100,
-                            style :{
-                                marginLeft: '10px',
-                                float:"left",
-                            },
-                            handler : function () {
-                                var value = Ext.getCmp("search_item").getValue();
-                                if(value===null||value===""){
-                                    Ext.Msg.alert('提示', '内容不可为空');
-                                    return
-                                }
-                                url="/search_item?text="+value
-                                store.getProxy().url = url;
-                                store.load({
-                                    callback : function (r,options,success) {
-                                        if(r.length===0){
-                                            Ext.Msg.alert("提示","没有根据模糊查询查找到对应记录")
-                                        }
-                                    }
-                                })
-                            }
-                        }
                     ]
                 },
             ]
@@ -259,16 +261,16 @@
                     }},
                 {header: "index", dataIndex: "id", hidden: true,flex: 1},
                 {header: "id", dataIndex: "uuid", hidden: true,flex: 1},
-                {header: '标题', dataIndex: 'item_title', flex: 1},
-                {header: '创建时间', dataIndex: 'create_at', flex: 1},
+                {header: '标题', dataIndex: 'title', flex: 1},
+                {header: '执行日期', dataIndex: 'date', flex: 1},
                 {
                     header: "操作", minWidth: 250,flex: 1,
                     renderer: function (value, metaData, record) {
                         var uuid = record.data.uuid
                         var index = record.data.id
                         var button = "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='addRecord(" + index + ")'>记录</button>" +
-                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'delete_button' onclick='deleteItem(" + index + ")'>删除</button>"+
-                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'button'>右移</button>"
+                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'delete_button' onclick='deleteToDoItem(" + index + ")'>删除</button>"+
+                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='moveItem("+index+")'>右移</button>"
                         return Ext.String.format(button);
                     }
                 },
@@ -294,16 +296,16 @@
                     }},
                 {header: "index", dataIndex: "id", hidden: true,flex: 1},
                 {header: "id", dataIndex: "uuid", hidden: true,flex: 1},
-                {header: '标题', dataIndex: 'item_title', flex: 1},
-                {header: '创建时间', dataIndex: 'create_at', flex: 1},
+                {header: '标题', dataIndex: 'title', flex: 1},
+                {header: '执行日期', dataIndex: 'date', flex: 1},
                 {
                     header: "操作", minWidth: 250,flex: 1,
                     renderer: function (value, metaData, record) {
                         var uuid = record.data.uuid
                         var index = record.data.id
                         var button = "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='addRecord(" + index + ")'>记录</button>" +
-                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'delete_button' onclick='deleteItem(" + index + ")'>删除</button>"+
-                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'button'>左移</button>"
+                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'delete_button' onclick='deleteToDoItem(" + index + ")'>删除</button>"+
+                            "<button id = " + index + " data='" + uuid + "' type='button' class = 'button' onclick='moveItem("+index+")'>左移</button>"
                         return Ext.String.format(button);
                     }
                 },
@@ -325,6 +327,87 @@
                 },
                 items : [
                     {
+                        xtype : "textfield",
+                        id : "todo_search_item",
+                        allowBlank: false,
+                        style: {
+                            width: '15%',
+                            marginLeft: '5px',
+                            float:"left",
+                        }
+                    },
+                    {
+                        xtype : "button",
+                        text : "搜索",
+                        width : 100,
+                        style :{
+                            marginLeft: '5px',
+                            float:"left",
+                        },
+                        handler : function () {
+                            var value = Ext.getCmp("todo_search_item").getValue();
+                            if(value===null||value===""){
+                                Ext.Msg.alert('提示', '内容不可为空');
+                                return
+                            }
+                            todoUrl="/search_todo_item?text="+value+"&state=0"
+                            todoUrlED = "/search_todo_item?text="+value+"&state=1"
+                            todo_item_store.getProxy().url = todoUrl;
+                            todo_item_store_ed.getProxy().url = todoUrlED
+                            todo_item_store.load();
+                            todo_item_store_ed.load();
+                        }
+                    },
+                    {
+                        xtype: 'datefield',
+                        id: "todo_selectionDate",
+                        name: 'from_date',
+                        style :{
+                            marginLeft: '10px',
+                            float:"left",
+                        },
+                    },
+                    {
+                        xtype : "button",
+                        text : "确定时间查询",
+                        style :{
+                            marginLeft: '5px',
+                            float:"left",
+                        },
+                        handler:function () {
+                            var value = Ext.util.Format.date(Ext.getCmp("todo_selectionDate").getValue(),"Y-m-d")
+                            if(value===null||value===""){
+                                Ext.Msg.alert('提示', '内容不可为空');
+                                return
+                            }
+                            todoUrl = "get-todo-item-by-date?date="+value+"&state=0"
+                            todoUrlED = "get-todo-item-by-date?date="+value+"&state=1"
+                            todo_item_store_ed.getProxy().url = todoUrlED;
+                            todo_item_store.getProxy().url = todoUrl
+                            todo_item_store_ed.load()
+                            todo_item_store.load()
+                            Ext.getCmp("todo_selectionDate").reset()
+                        }
+                    },
+                    {
+                        xtype : "button",
+                        id : "todo_allItem",
+                        text : "查看全部",
+                        width : 100,
+                        style :{
+                            marginLeft: '10px',
+                            float:"left",
+                        },
+                        handler : function () {
+                            todoUrl="get-all-todo-item?state_rd=no";
+                            todoUrlED = "get-all-todo-item?state_rd=ed";
+                            todo_item_store.getProxy().url = todoUrl;
+                            todo_item_store_ed.getProxy().url = todoUrlED;
+                            todo_item_store.load()
+                            todo_item_store_ed.load()
+                        }
+                    },
+                    {
                         xtype : "button",
                         text : "添加事项",
                         style :{
@@ -332,21 +415,23 @@
                             float:"right",
                         },
                         handler:function(){
-                            var value = Ext.getCmp("item").getValue();
-                            if(value===null||value===""){
+                            var title = Ext.getCmp("todo_item").getValue();
+                            var date = Ext.util.Format.date( Ext.getCmp("add_todo_item_date").getValue(),"Y-m-d")
+                            if(title===null||title===""||date===null||date===""){
                                 Ext.Msg.alert('提示', '内容不可为空');
                                 return
                             }
                             Ext.Ajax.request({
-                                url: '/add-item',
+                                url: '/add-todo-item',
                                 params: {
-                                    item: value
+                                    title: title,
+                                    date : date
                                 },
                                 success: function(response){
                                     Ext.Msg.alert('成功', '添加事项成功！');
-                                    url = "/get-item";
-                                    store.getProxy().url = url;
-                                    store.load()
+                                    todoUrl = "/get-todo-item-date";
+                                    todo_item_store.getProxy().url = todoUrl;
+                                    todo_item_store.load()
                                 }
                             });
 
@@ -364,84 +449,14 @@
                         }
                     },
                     {
-                        xtype : "button",
-                        text : "确定时间",
-                        style :{
-                            marginRight: '25px',
-                            float:"right",
-                        },
-                        handler:function () {
-                            var value = Ext.util.Format.date(Ext.getCmp("selectionDate").getValue(),"Y-m-d")
-                            if(value===null||value===""){
-                                Ext.Msg.alert('提示', '内容不可为空');
-                                return
-                            }
-                            url='/get-app-item?date='+value;
-                            store.getProxy().url = url;
-                            store.load()
-                            Ext.getCmp("selectionDate").reset()
-                        }
-                    },
-                    {
                         xtype: 'datefield',
-                        id: "todo_selectionDate",
+                        id: "add_todo_item_date",
                         name: 'from_date',
-                        maxValue: new Date(),
-                        style :{
-                            marginRight: '10px',
-                            float:"right",
-                        },
-                    },
-                    {
-                        xtype : "button",
-                        id : "todo_allItem",
-                        text : "查看全部",
-                        width : 100,
-                        style :{
-                            marginRight: '10px',
-                            float:"right",
-                        },
-                        handler : function () {
-                            url='/get-all-item'
-                            store.getProxy().url = url;
-                            store.load()
-                        }
-                    },
-                    {
-                        xtype : "textfield",
-                        id : "todo_search_item",
-                        allowBlank: false,
                         style: {
-                            width: '15%',
-                            marginLeft: '5px',
-                            float:"left",
+                            marginRight: '5px',
+                            float:"right"
                         }
                     },
-                    {
-                        xtype : "button",
-                        text : "搜索",
-                        width : 100,
-                        style :{
-                            marginLeft: '10px',
-                            float:"left",
-                        },
-                        handler : function () {
-                            var value = Ext.getCmp("search_item").getValue();
-                            if(value===null||value===""){
-                                Ext.Msg.alert('提示', '内容不可为空');
-                                return
-                            }
-                            url="/search_item?text="+value
-                            store.getProxy().url = url;
-                            store.load({
-                                callback : function (r,options,success) {
-                                    if(r.length===0){
-                                        Ext.Msg.alert("提示","没有根据模糊查询查找到对应记录")
-                                    }
-                                }
-                            })
-                        }
-                    }
                 ]
             },
         ]
@@ -461,10 +476,9 @@
                     Ext.getCmp("note_panel").setHidden(false);
                     break;
                 case "事项":
-                    Ext.Msg.alert('提醒', '暂未开放！');
-                    // Ext.getCmp("index").setHidden(true)
-                    // Ext.getCmp("note_panel").setHidden(true);
-                    // Ext.getCmp("todo_item_panel").setHidden(false);
+                    Ext.getCmp("index").setHidden(true)
+                    Ext.getCmp("note_panel").setHidden(true);
+                    Ext.getCmp("todo_item_panel").setHidden(false);
                     break;
                 case "已删除记录":
                     Ext.Msg.alert('提醒', '暂未开放！');
@@ -476,7 +490,7 @@
         }
     }
     function addRecord (value){
-       var uuid = Ext.getElementById(value).getAttribute("data")
+       var uuid = Ext.getElementById(value).getAttribute("data");
        var textData = "请输入内容......"
         Ext.Ajax.request({
             url: '/get-note-by-parentId?parent_id='+uuid,
@@ -556,4 +570,44 @@
     function downItem(value) {
         var uuid = Ext.getElementById(value).getAttribute("data")
         window.location.href="/down_file?uuid="+uuid;
+    }
+    function moveItem(value){
+        var uuid = Ext.getElementById(value).getAttribute("data")
+        Ext.Ajax.request({
+            url: "change-todo-item-state",
+            method: 'POST',
+            params: {
+                uuid : uuid,
+            },
+            success: function (response) {
+                var jsonInfo = JSON.parse(response.responseText);
+                if(jsonInfo.state===30){
+                    Ext.Msg.alert('错误', '只可移动今日计划！');
+                }
+                todoUrl="get-todo-item-date";
+                todoUrlED = "get-todo-item-date-ED";
+                todo_item_store.getProxy().url = todoUrl;
+                todo_item_store_ed.getProxy().url = todoUrlED;
+                todo_item_store.load()
+                todo_item_store_ed.load()
+            },
+        });
+    }
+    function deleteToDoItem(value){
+        var uuid = Ext.getElementById(value).getAttribute("data");
+        Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
+            if (button == "yes") {
+                Ext.Ajax.request({
+                    url: "delete-todo-item",
+                    method: 'GET',
+                    params: {
+                        uuid : uuid,
+                    },
+                    success: function (response) {
+                        todo_item_store.reload()
+                        todo_item_store_ed.reload()
+                    },
+                });
+            }
+        });
     }

@@ -1,18 +1,23 @@
 package com.example.demo.Contrller;
 import com.example.demo.DataBase.Items;
 import com.example.demo.DataBase.Notes;
+import com.example.demo.DataBase.ToDoItem;
 import com.example.demo.DataBase.im.AddItem;
 import com.example.demo.DataBase.im.AddNote;
 import com.example.demo.DataBase.im.AddToDoItem;
 import com.example.demo.JsonResult;
 import com.example.demo.RedisCache.imp.RedisService.RedisCache;
+import io.netty.util.concurrent.SucceededFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import sun.misc.MetaIndex;
+import sun.misc.Request;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.RequestWrapper;
 import java.io.*;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -147,9 +152,70 @@ public class Index {
 
         return null;
     }
-    @RequestMapping(value = "get_cache",method = RequestMethod.GET)
-    public void getCache(){
-        redisCache.getToDoItemById(1);
+    @RequestMapping(value = "add-todo-item",method = RequestMethod.POST)
+   public JsonResult<Void> addToDoItem(String title,String date){
+       ToDoItem toDoItem = new ToDoItem();
+       toDoItem.setTitle(title);
+       toDoItem.setUuid(UUID.randomUUID().toString());
+       toDoItem.setDate(date);
+       toDoItem.setCreate_at(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+       toDoItem.setState(0);
+       toDoItem.setDelete_state(0);
+       addToDoItem.save(toDoItem);
+       return new JsonResult<Void>(SUCCESS);
+   }
+    @RequestMapping(value = "get-todo-item-date",method = RequestMethod.GET)
+   public JsonResult<List<ToDoItem>> getToDoItem(){
+        List<ToDoItem>list = addToDoItem.findAllByDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),0);
+        return new JsonResult<List<ToDoItem>>(SUCCESS,list);
+   }
+    @RequestMapping(value = "get-todo-item-date-ED",method = RequestMethod.GET)
+    public JsonResult<List<ToDoItem>> getToDoItemED(){
+        List<ToDoItem>list = addToDoItem.findAllByDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),1);
+        return new JsonResult<List<ToDoItem>>(SUCCESS,list);
+    }
+    @RequestMapping(value = "change-todo-item-state",method = RequestMethod.POST)
+    public JsonResult<Void> changeToDoItemState(String uuid){
+        ToDoItem toDoItem = addToDoItem.findById(uuid);
+        if(!toDoItem.getDate().equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date()))){
+            return new JsonResult<Void>(ERROR);
+        }
+        Integer state = toDoItem.getState();
+        switch (state){
+            case 0:
+                state=1;
+                break;
+            case 1:
+                state=0;
+                break;
+        }
+        addToDoItem.changeToDoItemState(uuid,state);
+        return new JsonResult<Void>(SUCCESS);
+    }
+
+    @RequestMapping(value = "get-all-todo-item",method = RequestMethod.GET)
+    public JsonResult<List<ToDoItem>> getAllToDoItem(String state_rd){
+        List<ToDoItem> list = null;
+        if(state_rd.equals("ed")){
+           list = addToDoItem.findAllByState(1);
+        }else{
+           list = addToDoItem.findAllByState(0);
+        }
+        return new JsonResult<List<ToDoItem>>(SUCCESS,list);
+    }
+    @RequestMapping(value = "delete-todo-item",method = RequestMethod.GET)
+    public JsonResult<Void> deleteToDoItem(String uuid){
+        addToDoItem.deleteToDoItemByUUID(uuid);
+        return new JsonResult<Void>(SUCCESS);
+    }
+
+    @RequestMapping(value = "get-todo-item-by-date",method = RequestMethod.GET)
+    public JsonResult<List<ToDoItem>> getToDoItemByDate(String date,Integer state){
+        return new JsonResult<List<ToDoItem>>(SUCCESS,addToDoItem.findAllByDate(date,state));
+    }
+
+    public JsonResult<List<ToDoItem>> SearchToDoItem(String text,Integer state){
+        return new JsonResult<List<ToDoItem>>(SUCCESS,addToDoItem.findAllByDate(text,state));
     }
 }
 
