@@ -1,2 +1,2 @@
 # springBoot-hibernate-redis-quartz-Ext
-学习，联系的小项目
+学习，练习的小项目
