@@ -44,6 +44,6 @@ public class BeforeApplicationStart implements ApplicationRunner {
         redisServiceImp.deleteCache(date);
         redisServiceImp.saveItem(date);
         jobTaskUtils.taskDemo("jobDemoTask","jobDemoTaskGroup",
-                "triggerDemo","triggerDemoGroup","0 0 * * * ? *",TaskDemo.class,taskNote);
+                "triggerDemo","triggerDemoGroup","0 * * * * ? *",TaskDemo.class,taskNote);
     }
 }
