@@ -2,8 +2,12 @@ package com.example.demo.Component;
 
 import com.example.demo.DataBase.im.AddItem;
 import com.example.demo.DataBase.im.AddToDoItem;
+import com.example.demo.DataBase.im.TaskNote;
 import com.example.demo.RedisCache.imp.RedisService.RedisServiceImp;
+import com.example.demo.Task.JobTaskUtils;
+import com.example.demo.Task.TaskDemo;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -12,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,14 +33,17 @@ public class BeforeApplicationStart implements ApplicationRunner {
     private AddItem addItem;
     @Autowired
     private RedisServiceImp redisServiceImp;
-
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private JobTaskUtils jobTaskUtils = new JobTaskUtils();
+    @Autowired
+    private TaskNote taskNote;
     @Override
-    @Async
     public void run(ApplicationArguments args) throws Exception {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         List list = addItem.findByAppDate(date);
         redisServiceImp.deleteCache(date);
         redisServiceImp.saveItem(date);
-        System.err.println("< < < < < < < < < <当天日志加入缓存成功> > > > > > > > > >");
+        jobTaskUtils.taskDemo("jobDemoTask","jobDemoTaskGroup",
+                "triggerDemo","triggerDemoGroup","0 0 * * * ? *",TaskDemo.class,taskNote);
     }
 }
