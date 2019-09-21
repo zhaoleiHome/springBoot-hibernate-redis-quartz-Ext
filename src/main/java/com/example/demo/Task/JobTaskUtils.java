@@ -17,7 +17,10 @@ import java.util.Date;
 @Configuration
 public class JobTaskUtils {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+    private SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+    private Scheduler scheduler= null;
+    private JobDetail job = null;
+    private Trigger trigger = null;
     /**
      *  比较简单的不需要cron表达式即可实现的定时任务
      * @param jobName  任务名字
@@ -40,15 +43,14 @@ public class JobTaskUtils {
         taskTable1.setCreate_at(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         taskNote.save(taskTable1);
         //获取一个调度器工厂类
-        Scheduler scheduler = null;
         try{
             //通过工厂类获取一个调度器
             scheduler = schedulerFactory.getScheduler();
             //获取jobDetail，添加实现类和设置任务的名字
-            JobDetail job = JobBuilder.newJob(jobClass).withIdentity(jobName,jobGroupName).build();
+            job = JobBuilder.newJob(jobClass).withIdentity(jobName,jobGroupName).build();
             //定义调度触发规则
             //触发器
-            Trigger trigger = TriggerBuilder.newTrigger().withIdentity(triggerName,triggerGroupName)
+            trigger = TriggerBuilder.newTrigger().withIdentity(triggerName,triggerGroupName)
                     .withSchedule(SimpleScheduleBuilder.repeatSecondlyForever(time).withRepeatCount(count)).startNow().build();
             scheduler.scheduleJob(job,trigger);
             scheduler.start();
@@ -93,11 +95,25 @@ public class JobTaskUtils {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 停止定时任务
+     */
+    public void closeTrigger(){
+        try{
+            if(scheduler!=null) scheduler.pauseJob(job.getKey());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 关闭该定时任务
+     */
     public void shutdownJobs(){
         try {
-            Scheduler sched = schedulerFactory.getScheduler();
-            if (!sched.isShutdown()) {
-                sched.shutdown();
+            if (scheduler!=null && !scheduler.isShutdown()) {
+                scheduler.shutdown();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

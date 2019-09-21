@@ -30,7 +30,6 @@ public class TaskDemo implements Job{
         this.saveWeather(weather);
     }
     public void saveWeather(String weatherInfo){
-        System.err.println("25524");
         Integer temp = null;
         Connection connection = null;
         try{
