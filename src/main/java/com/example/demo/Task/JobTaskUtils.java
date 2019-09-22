@@ -8,13 +8,13 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-@Configuration
 public class JobTaskUtils {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private SchedulerFactory schedulerFactory = new StdSchedulerFactory();
@@ -70,14 +70,14 @@ public class JobTaskUtils {
      */
     public void taskDemo(String jobName,String jobGroupName,String triggerName,String triggerGroupName,String cron,Class jobClass,TaskNote taskNote){
         logger.error(jobName);
-        TaskTable taskTable = taskNote.findTaskNote(jobName);
-        if(taskTable!=null){
-            return;
-        }
-        TaskTable taskTable1 = new TaskTable();
-        taskTable1.setTask_name(jobName);
-        taskTable1.setCreate_at(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        taskNote.save(taskTable1);
+//        TaskTable taskTable = taskNote.findTaskNote(jobName);
+//        if(taskTable!=null){
+//            return;
+//        }
+//        TaskTable taskTable1 = new TaskTable();
+//        taskTable1.setTask_name(jobName);
+//        taskTable1.setCreate_at(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+//        taskNote.save(taskTable1);
         //获取一个调度器工厂类
         Scheduler scheduler = null;
         try{
@@ -101,7 +101,11 @@ public class JobTaskUtils {
      */
     public void closeTrigger(){
         try{
-            if(scheduler!=null) scheduler.pauseJob(job.getKey());
+            if(schedulerFactory.getScheduler().getJobDetail(new JobKey("TaskDemo"))!=null) {
+                scheduler.pauseJob(job.getKey());
+            }else {
+                System.err.println("是个null");
+            };
         }catch (Exception e){
             e.printStackTrace();
         }

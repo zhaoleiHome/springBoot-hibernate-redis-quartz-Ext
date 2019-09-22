@@ -25,6 +25,8 @@ import java.util.List;
 
 @Component
 public class BeforeApplicationStart implements ApplicationRunner {
+    public final String NOTE_INFO_KEY = "note_info_key";
+    public final String WEATHER_INFO_KEY="weather_info_key";
     @Autowired
     private AddToDoItem addToDoItem;
     @Resource
@@ -40,9 +42,11 @@ public class BeforeApplicationStart implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        List list = addItem.findByAppDate(date);
-        redisServiceImp.deleteCache(date);
-        redisServiceImp.saveItem(date);
+        redisServiceImp.deleteCache(NOTE_INFO_KEY);
+        redisServiceImp.saveItem(date,NOTE_INFO_KEY);
+        redisServiceImp.deleteCacheByWeather(WEATHER_INFO_KEY);
+        redisServiceImp.saveWeatherInfo(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),WEATHER_INFO_KEY);
+        //开启任务，将任务添加到内存中
         jobTaskUtils.taskDemo("jobDemoTask","jobDemoTaskGroup",
                 "triggerDemo","triggerDemoGroup","0 * * * * ? *",TaskDemo.class,taskNote);
     }

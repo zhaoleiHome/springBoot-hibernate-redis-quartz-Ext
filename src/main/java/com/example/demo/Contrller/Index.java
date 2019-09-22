@@ -1,17 +1,17 @@
 package com.example.demo.Contrller;
-import com.example.demo.DataBase.Items;
-import com.example.demo.DataBase.Notes;
-import com.example.demo.DataBase.ToDoItem;
-import com.example.demo.DataBase.ToDoNote;
+import com.example.demo.DataBase.*;
 import com.example.demo.DataBase.im.AddItem;
 import com.example.demo.DataBase.im.AddNote;
 import com.example.demo.DataBase.im.AddToDoItem;
 import com.example.demo.DataBase.im.AddToDoNote;
 import com.example.demo.JsonResult;
 import com.example.demo.RedisCache.imp.RedisService.RedisCache;
+import com.example.demo.Task.JobTaskUtils;
+import com.example.demo.Task.SpringUtils;
 import io.netty.util.concurrent.SucceededFuture;
 import javafx.scene.media.VideoTrack;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +31,8 @@ import java.util.*;
 public class Index {
     private static Integer SUCCESS=20;
     private static Integer ERROR = 30;
+    public final String NOTE_INFO_KEY = "note_info_key";
+    public final String WEATHER_INFO_KEY="weather_info_key";
 
     @Autowired
     private AddItem addItem;
@@ -42,6 +44,8 @@ public class Index {
     private RedisCache redisCache;
     @Autowired
     private AddToDoNote addToDoNote;
+    @Autowired
+    private ApplicationContext applicationContext;
     @RequestMapping(value = "add-item",method = RequestMethod.POST)
     public JsonResult<Void> addItem(String item){
         Items items  = new Items();
@@ -51,7 +55,7 @@ public class Index {
         items.setUuid(uuid);
         items.setDelete_state(0);
         addItem.save(items);
-        redisCache.deleteCache(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        redisCache.deleteCache(NOTE_INFO_KEY);
         return new JsonResult<Void>(SUCCESS);
     }
 
@@ -85,7 +89,7 @@ public class Index {
     @RequestMapping(value = "get-item",method = RequestMethod.GET)
     public JsonResult<List> getAllItem(String date){
         Long time1 = System.currentTimeMillis();
-        List list = redisCache.getAllItemByDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        List list = redisCache.getAllItemByDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),NOTE_INFO_KEY);
 //        List list = addItem.findByAppDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
         Long time2 = System.currentTimeMillis();
         long time = (int)(time2-time1);
@@ -105,7 +109,7 @@ public class Index {
     @RequestMapping(value = "delete_item",method = RequestMethod.POST)
     public JsonResult<Void> deleteItem(String uuid){
         addItem.deleteItem(uuid);
-        redisCache.deleteCache(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        redisCache.deleteCache(NOTE_INFO_KEY);
         return new JsonResult<>(SUCCESS);
     }
 
@@ -240,9 +244,12 @@ public class Index {
         }
         return new JsonResult<Void>(SUCCESS,toDoNote.getContent());
     }
-//    public JsonResult<List<ToDoItem>> SearchToDoItem(String text,Integer state){
-//        return new JsonResult<List<ToDoItem>>(SUCCESS,addToDoItem.findAllByDate(text,state));
-//    }
+    @RequestMapping(value = "get-weather")
+    public JsonResult<List<Weather>> getWeather(){
+        List<Weather> list = redisCache.getWeatherInfo(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),WEATHER_INFO_KEY);
+        return new JsonResult<List<Weather>>(SUCCESS,list);
+    }
+
 }
 
 

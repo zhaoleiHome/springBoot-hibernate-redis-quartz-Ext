@@ -28,8 +28,14 @@
         .indexPanel{
             font-size: 30px;
             text-align: center;
-            margin-top: 21%;
+            margin-top: 16%;
             color: 	#B4B4B4;
+        }
+        #weather{
+            font-size: 15px;
+            text-align: left;
+            color: 	#B4B4B4;
+            margin-left: 46%;
         }
     </style>
 </head>
@@ -97,11 +103,43 @@
             ]
 
         })
+        var weatherZ = null;
+        var city =null
+        var temp1 =null
+        var temp2 = null
+        var detail =null
+        var weather_info = null
+        getWeatherInfo();
+        console.log(weather_info)
         var dateFormat = Ext.util.Format.date(new Date(),"Y-m-d H:i:s");
-        document.getElementById('date').innerHTML="欢迎，赵磊<br/>现在时间："+dateFormat
+        document.getElementById('date').innerHTML="欢迎，赵磊<br/>现在时间："+dateFormat+"<br/>天气信息：<br/>"
         setInterval(createDateTime, 1000);
+        setInterval(getWeatherInfo,1000*60*20)
         function createDateTime(){
-            document.getElementById('date').innerHTML="欢迎，赵磊<br/>现在时间："+Ext.util.Format.date(new Date(),"Y-m-d H:i:s");
+            document.getElementById('date').innerHTML="欢迎，赵磊<br/>现在时间："+Ext.util.Format.date(new Date(),"Y-m-d H:i:s")+"<br/>天气：<br/><div id='weather'>" +
+                weather_info +
+                "</div>";
+        }
+        function getWeatherInfo(){
+            weatherZ = null;
+            console.log("向后端后去最新的天气情况")
+            Ext.Ajax.request({
+                url: "/get-weather",
+                method: 'GET',
+                async: false,
+                success: function (response) {
+                    var json =JSON.parse(response.responseText)
+                    weatherZ = JSON.parse(json.data[0].weather_info)
+                },
+                failure: function (response) {
+                    console.log(response.responseText)
+                }
+            });
+            city = weatherZ.weatherinfo.city;
+            temp1 = weatherZ.weatherinfo.temp1;
+            temp2 = weatherZ.weatherinfo.temp2;
+            detail = weatherZ.weatherinfo.weather
+            weather_info = "地区："+city+"<br>温度："+temp1+"--"+temp2+"<br/>天气状况："+detail
         }
     })
 </script>
