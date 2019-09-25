@@ -48,6 +48,6 @@ public class BeforeApplicationStart implements ApplicationRunner {
         redisServiceImp.saveWeatherInfo(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),WEATHER_INFO_KEY);
         //开启任务，将任务添加到内存中
         jobTaskUtils.taskDemo("jobDemoTask","jobDemoTaskGroup",
-                "triggerDemo","triggerDemoGroup","0 * * * * ? *",TaskDemo.class,taskNote);
+                "triggerDemo","triggerDemoGroup","0 0 * * * ? *",TaskDemo.class,taskNote);
     }
 }
