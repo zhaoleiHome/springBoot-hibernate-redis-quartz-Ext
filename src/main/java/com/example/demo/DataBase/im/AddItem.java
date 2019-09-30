@@ -15,13 +15,15 @@ public interface AddItem extends JpaRepository<Items,Long> {
 
     @Query(nativeQuery = true,value = ("select * from items i where TO_DAYS(i.create_at) = TO_DAYS(:date) and i.delete_state = 0 order by create_at desc"))
     List<Items> findByAppDate(String date);
-    @Query("select i from Items i where i.delete_state = 0 order by i.create_at desc ")
-    List<Items> findAll();
+    @Query(nativeQuery = true,value =("select * from items i where i.delete_state = 0 order by i.create_at desc limit ?1,?2"))
+    List<Items> findAll(Integer start,Integer limit);
     @Query("update Items i set i.delete_state = 1 where i.uuid = ?1")
     @Modifying
     @Transactional
     int deleteItem(String uuid);
     @Query(nativeQuery = true,value = ("select * from items i left join notes n on i.uuid=n.parent_id where i.item_title like %?1% or n.content like %?1% order by i.create_at desc"))
     List<Items> findLikeText(String text);
+    @Query("select count(i.id) from Items i")
+    Integer findCount();
 
 }

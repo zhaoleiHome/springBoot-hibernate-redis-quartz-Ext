@@ -1,19 +1,27 @@
     var url = "/get-item";
     var todoUrl = "get-todo-item-date"
     var todoUrlED = "get-todo-item-date-ED"
-    var store= Ext.create('Ext.data.Store',{
-            fields : ["id","uuid","itemTitle","create_at"],
-            proxy:{
-                type : "ajax",
-                url:url,
-                reader:{
-                    type:"json",
-                    root:"data"
-                },
+    var itemsPerPage = 20
+                    var store= Ext.create('Ext.data.Store',{
+                        fields : ["id","uuid","itemTitle","create_at"],
+                        pageSize:itemsPerPage,
+                        proxy:{
+                            type : "ajax",
+                            url:url,
+                            reader:{
+                                type:"json",
+                                root:"data",
+                                totalProperty:"total",
+                            },
             },
             autoLoad:true,
         });
-        store.load();
+        store.load({
+            params:{
+                start:0,
+                limit: itemsPerPage
+            }
+        });
     var todo_item_store_ed= Ext.create('Ext.data.Store',{
         fields : ["id","uuid","title","date"],
         proxy:{
@@ -219,6 +227,7 @@
             items : {
                 xtype: "grid",
                 id: "displayList",
+                height : "100%",
                 store: store,
                 columns: [
                     { header: '序号',width : 45,
@@ -241,7 +250,7 @@
                         }
                     },
                 ],
-            }
+            },
 
         });
 

@@ -1,20 +1,14 @@
 package com.example.demo.Task;
 
-import com.example.demo.DataBase.Weather;
-import com.example.demo.RedisCache.imp.RedisService.RedisCache;
 import com.example.demo.RedisCache.imp.RedisService.RedisServiceImp;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.RedisServer;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
@@ -73,6 +67,5 @@ public class TaskDemo implements Job{
             redisServiceImp.deleteCacheByWeather(WEATHER_INFO_KEY);
             redisServiceImp.saveWeatherInfo(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),WEATHER_INFO_KEY);
         }
-
     }
 }

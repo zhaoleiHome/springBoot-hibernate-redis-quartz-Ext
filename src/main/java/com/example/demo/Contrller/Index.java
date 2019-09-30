@@ -10,6 +10,7 @@ import com.example.demo.Task.JobTaskUtils;
 import com.example.demo.Task.SpringUtils;
 import io.netty.util.concurrent.SucceededFuture;
 import javafx.scene.media.VideoTrack;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.RequestWrapper;
 import java.io.*;
 import java.net.URLEncoder;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -102,9 +105,10 @@ public class Index {
         return new JsonResult<List>(SUCCESS,list);
     }
     @RequestMapping(value = "get-all-item",method = RequestMethod.GET)
-    public JsonResult<List> getAllItem() {
-        List<Items> list = addItem.findAll();
-        return new JsonResult<>(SUCCESS, list);
+    public JsonResult<List> getAllItem(Integer start,Integer limit) {
+        List<Items> list = addItem.findAll(start,limit);
+        Integer total = addItem.findCount();
+        return new JsonResult<>(SUCCESS, list,total);
     }
     @RequestMapping(value = "delete_item",method = RequestMethod.POST)
     public JsonResult<Void> deleteItem(String uuid){

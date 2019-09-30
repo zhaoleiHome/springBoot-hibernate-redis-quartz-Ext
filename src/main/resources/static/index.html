@@ -75,7 +75,14 @@
                       {
                           xtype : "item_grid"
                       }
-                  ]
+                  ],
+                    bbar: {
+                        xtype: 'pagingtoolbar',
+                        store: store,   // GridPanel中使用的数据
+                        dock: 'bottom',
+                        displayInfo: true
+                    }
+
                 },
                 {
                     region : "east",

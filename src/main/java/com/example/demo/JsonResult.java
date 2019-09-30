@@ -9,8 +9,20 @@ public class JsonResult<T> {
     private String message;
     @JsonInclude(value= JsonInclude.Include.ALWAYS)
     private T data;
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
+    private Integer total;
+    public JsonResult(Integer state, T data,Integer total) {
+        super();
+        this.total = total;
+        this.state = state;
+        this.data = data;
+    }
+    public Integer getTotal() {
+        return total;
+    }
 
-    public JsonResult() {
+    public void setTotal(Integer total) {
+        this.total = total;
     }
 
     public JsonResult(Integer state) {
@@ -28,6 +40,7 @@ public class JsonResult<T> {
         this.state = state;
         this.data = data;
     }
+
 
     public JsonResult(String message) {
         this.message = message;
